@@ -1,6 +1,6 @@
 ### Create a sample
 
-POST http://localhost:8080/samples
+POST http://localhost:8080/samples/create
 Content-Type: application/json
 
 {
