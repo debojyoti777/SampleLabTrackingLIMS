@@ -1,0 +1,34 @@
+### Create a sample
+
+POST http://localhost:8080/samples
+Content-Type: application/json
+
+{
+    "sampleType" : "Blood",
+    "parameterList" : "Cholesterol",
+    "sampleDesc" : "This is an example testing sample desc"
+}
+
+### Get a sample based on the Sample ID
+
+GET http://localhost:8080/samples/getsample/1
+
+### List all the samples available
+
+GET http://localhost:8080/samples/listsamples
+
+### Search for a sample by their column and a value.
+
+GET http://localhost:8080/samples/search?columnToSearch=sampleTy&searchValue=Piss
+
+### Update the status of a sample
+
+PATCH http://localhost:8080/samples/updatestatus/1?updatedStatus=archived
+
+### Enter or Update a value of a sample
+
+PATCH http://localhost:8080/samples/updatevalue/1?parameterList=Cholesterol&value=23.44
+
+### Delete a sample
+
+DELETE http://localhost:8080/samples/deletesample/1
