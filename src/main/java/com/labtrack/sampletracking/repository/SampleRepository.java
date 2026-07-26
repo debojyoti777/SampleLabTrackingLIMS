@@ -5,6 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
+/**
+ * Interface class with all the straightforward queries required by the code logic.
+ */
 public interface SampleRepository extends JpaRepository<Sample, Long> {
 
     List<Sample> findBySampleStatus(String sampleStatus);

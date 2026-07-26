@@ -5,6 +5,9 @@ import com.labtrack.sampletracking.model.SampleStatus;
 
 import java.time.LocalDateTime;
 
+/**
+ * Database table schema object class that is handled by the Hibernate entity to create a table in the database.
+ */
 @Entity
 @Table(name = "samples")
 public class Sample {

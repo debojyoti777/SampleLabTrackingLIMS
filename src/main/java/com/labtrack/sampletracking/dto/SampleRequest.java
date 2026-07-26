@@ -2,6 +2,9 @@ package com.labtrack.sampletracking.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * Sample Request DTO object that is received in the API call as the request body from the frontend.
+ */
 public class SampleRequest {
 
     @NotBlank(message = "Sample Type is required")

@@ -109,8 +109,7 @@ public class SampleService {
     }
 
     /**
-     *
-     * @param id
+     * @param id Sample ID of the sample to be deleted
      */
     public void deleteSample(Long id) {
         Sample sample = getSample(id);
@@ -118,9 +117,9 @@ public class SampleService {
     }
 
     /**
-     *
-     * @param column
-     * @return
+     * Helper function to check if a column is valid or not.
+     * @param column Column that needs to be checked
+     * @return boolean Value
      */
     private boolean isValidColumn(String column)
     {
