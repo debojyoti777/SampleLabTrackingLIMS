@@ -1,2 +1,3 @@
 # Project exclude paths
-/target/
+SampleLabTrackingLIMS\.idea
+SampleLabTrackingLIMS\sample-tracking-api.iml
