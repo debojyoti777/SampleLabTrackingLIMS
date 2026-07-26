@@ -20,7 +20,7 @@ import java.util.List;
 public class SampleService {
 
     private final SampleRepository sampleRepository;
-    SampleRuntimeException sre;
+    SampleRuntimeException sre = new SampleRuntimeException();
     private final String sampleDescStartsWith = "sampledescstartswith";
 
     public SampleService(SampleRepository sampleRepository) {
@@ -68,7 +68,7 @@ public class SampleService {
             case Columns.sampleType -> sampleRepository.findBySampleType(value);
             case Columns.createdBy -> sampleRepository.findByCreatedBy(value);
             case Columns.parameterList -> sampleRepository.findByParameterList(value);
-            case sampleDescStartsWith -> sampleRepository.findBySampleDescStartingWith(value);
+            case Columns.sampleDesc -> sampleRepository.findBySampleDescStartingWith(value);
             default -> sampleRepository.findBy();
         };
     }
