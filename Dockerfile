@@ -1,3 +1,6 @@
+# Docker file , do not change unless absolutely necessary
+
+
 # ---- Build stage ----
 # Changed from jre to eclipse-temurin (JDK 21) on Alpine
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS build

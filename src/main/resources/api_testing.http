@@ -1,21 +1,21 @@
 ### Create a sample
 
-POST http://localhost:8080/samples/create
+POST http://13.200.233.118:8080/samples/create
 Content-Type: application/json
 
 {
-    "sampleType" : "Blood",
-    "parameterList" : "Cholesterol",
-    "sampleDesc" : "This is an example testing sample desc"
+    "sampleType" : "Urine",
+    "parameterList" : "Steroids",
+    "sampleDesc" : "This is an example testing sample desc for another sample"
 }
 
 ### Get a sample based on the Sample ID
 
-GET http://localhost:8080/samples/getsample/1
+GET http://13.200.233.118:8080/samples/getsample/1
 
 ### List all the samples available
 
-GET http://localhost:8080/samples/listsamples
+GET http://sampletracking-alb-1324203417.ap-south-1.elb.amazonaws.com/samples/listsamples
 
 ### Search for a sample by their column and a value.
 
