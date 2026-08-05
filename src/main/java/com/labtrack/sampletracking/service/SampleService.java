@@ -89,7 +89,7 @@ public class SampleService {
         Sample sample = getSample(id);
         if (newStatus.equalsIgnoreCase(SampleStatus.completed)) {
             if (sample.getValue() == 0.0)
-                sre.illegalUpdateException();
+                sre.illegalUpdateException();;;
         }
         sample.setStatus(newStatus);
         return sampleRepository.save(sample);
