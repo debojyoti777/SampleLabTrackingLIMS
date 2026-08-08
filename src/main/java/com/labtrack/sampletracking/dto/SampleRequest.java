@@ -13,24 +13,8 @@ public class SampleRequest {
     private String parameterList;
     private String sampleDesc;
     private double value;
-//    @NotBlank(message = "Updated By is required")
-//    private String updateBy;
-
-//    public String getUpdateBy() {
-//        return updateBy;
-//    }
-//
-//    public void setUpdateBy(String updateBy) {
-//        this.updateBy = updateBy;
-//    }
 
 
-
-    public String getSampleStatus() {
-        return sampleStatus;
-    }
-
-    private String sampleStatus;
     public double getValue() {
         return value;
     }

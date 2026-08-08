@@ -88,14 +88,6 @@ public class Sample {
         return sampleType;
     }
 
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy){
-        this.updatedBy = updatedBy;
-    }
-
     public String getStatus() {
         return sampleStatus;
     }

@@ -21,7 +21,6 @@ public class SampleService {
 
     private final SampleRepository sampleRepository;
     SampleRuntimeException sre = new SampleRuntimeException();
-    private final String sampleDescStartsWith = "sampledescstartswith";
 
     public SampleService(SampleRepository sampleRepository) {
         this.sampleRepository = sampleRepository;
@@ -32,9 +31,7 @@ public class SampleService {
      * @return Created Sample
      */
     public Sample createSample(SampleRequest request) {
-//        sampleRepository.findByBarcode(request.getBarcode()).ifPresent(s -> {
-//            throw new IllegalArgumentException("Sample with barcode " + request.getBarcode() + " already exists");
-//        });
+
         Sample sample = new Sample(request.getSampleDesc(), request.getSampleType(), "admin", request.getParameterList());
         return sampleRepository.save(sample);
     }
