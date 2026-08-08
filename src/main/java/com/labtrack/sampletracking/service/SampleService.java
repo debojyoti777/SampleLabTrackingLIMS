@@ -1,6 +1,7 @@
 package com.labtrack.sampletracking.service;
 
-import com.labtrack.sampletracking.Exceptions.SampleRuntimeException;
+import com.labtrack.sampletracking.Exceptions.SampleNotFoundException;
+import com.labtrack.sampletracking.Exceptions.IllegalUpdateException;
 import com.labtrack.sampletracking.dto.SampleRequest;
 import com.labtrack.sampletracking.model.*;
 import com.labtrack.sampletracking.model.SampleStatus;
@@ -20,7 +21,6 @@ import java.util.List;
 public class SampleService {
 
     private final SampleRepository sampleRepository;
-    SampleRuntimeException sre = new SampleRuntimeException();
 
     public SampleService(SampleRepository sampleRepository) {
         this.sampleRepository = sampleRepository;
@@ -45,8 +45,7 @@ public class SampleService {
         if (sampleRepository.existsById(sampleId))
             return sampleRepository.findBySampleId(sampleId);
         else
-            sre.sampleNotFoundException(sampleId);
-        return null;
+            throw new SampleNotFoundException(sampleId);
     }
 
     /**
@@ -59,7 +58,7 @@ public class SampleService {
     public List<Sample> searchSamples(String columnToSearch, String value) {
         String column = columnToSearch.toLowerCase().replace(" ", "");
         if(!isValidColumn(column))
-            sre.illegalUpdateException();
+            throw new IllegalUpdateException();
         return switch (column) {
             case Columns.sampleStatus -> sampleRepository.findBySampleStatus(value.toUpperCase());
             case Columns.sampleType -> sampleRepository.findBySampleType(value);
@@ -86,7 +85,7 @@ public class SampleService {
         Sample sample = getSample(id);
         if (newStatus.equalsIgnoreCase(SampleStatus.completed)) {
             if (sample.getValue() == 0.0)
-                sre.illegalUpdateException();;;
+                throw new IllegalUpdateException();
         }
         sample.setStatus(newStatus);
         return sampleRepository.save(sample);

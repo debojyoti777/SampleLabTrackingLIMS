@@ -1,6 +1,6 @@
 package com.labtrack.sampletracking.service;
 
-import com.labtrack.sampletracking.Exceptions.SampleRuntimeException;
+import com.labtrack.sampletracking.Exceptions.IllegalUpdateException;
 import com.labtrack.sampletracking.dto.SampleRequest;
 import com.labtrack.sampletracking.model.Sample;
 import com.labtrack.sampletracking.model.SampleStatus;
@@ -25,10 +25,10 @@ import static org.mockito.Mockito.*;
 /**
  * Unit tests for {@link SampleService}.
  * <p>
- * These tests inject a real {@link SampleRuntimeException} via
+ * These tests inject a real {@link IllegalUpdateException} via
  * {@link ReflectionTestUtils} so they verify the *intended* behavior once
  * {@code sre} is properly initialized in {@code SampleService} (e.g.
- * {@code sre = new SampleRuntimeException();} in the constructor), the
+ * {@code sre = new IllegalUpdateException();} in the constructor), the
  * production code will match what's tested here.
  */
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +46,7 @@ class SampleServiceTest {
     void setUp() {
         // Work around the uninitialized `sre` field so intended exception
         // behavior can actually be verified (see class-level note above).
-        ReflectionTestUtils.setField(sampleService, "sre", new SampleRuntimeException());
+        ReflectionTestUtils.setField(sampleService, "sre", new IllegalUpdateException());
 
         sample = new Sample("Routine blood panel", "Blood", "admin", "Glucose,Cholesterol");
         ReflectionTestUtils.setField(sample, "sampleId", 1L);
@@ -107,7 +107,7 @@ class SampleServiceTest {
         void getSample_whenNotExists_throwsException() {
             when(sampleRepository.existsById(99L)).thenReturn(false);
 
-            // Intended behavior: SampleRuntimeException.sampleNotFoundException
+            // Intended behavior: IllegalUpdateException.sampleNotFoundException
             // explicitly throws NullPointerException with a descriptive message.
             NullPointerException ex = assertThrows(NullPointerException.class,
                     () -> sampleService.getSample(99L));
