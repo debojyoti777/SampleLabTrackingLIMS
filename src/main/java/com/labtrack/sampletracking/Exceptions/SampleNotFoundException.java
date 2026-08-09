@@ -15,4 +15,9 @@ public class SampleNotFoundException extends RuntimeException{
         this.sampleId = sampleId;
     }
 
+    public String getErrorMessage()
+    {
+        return super.getMessage();
+    }
+
 }

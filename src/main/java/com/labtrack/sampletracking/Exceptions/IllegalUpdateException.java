@@ -9,4 +9,9 @@ public class IllegalUpdateException extends RuntimeException {
     public IllegalUpdateException(){
         super("This is an illegal update prohibited by the logic. Enter correct details");
     }
+
+    public String getErrorMessage()
+    {
+        return super.getMessage();
+    }
 }
