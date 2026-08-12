@@ -6,7 +6,7 @@ import com.labtrack.sampletracking.model.SampleStatus;
 import java.time.LocalDateTime;
 
 /**
- * Database table schema object class that is handled by the Hibernate entity to create a table in the database.
+ * Database table schema object class that is handled by the Hibernate entity to create the Sample table in the database.
  */
 @Entity
 @Table(name = "samples")
@@ -14,7 +14,7 @@ public class Sample {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false)
     private Long sampleId;
 
     @Column()
@@ -23,7 +23,6 @@ public class Sample {
     @Column(updatable = false, nullable = false)
     private String sampleType;
 
-   // @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private String sampleStatus;
 
@@ -39,8 +38,16 @@ public class Sample {
     @Column(nullable = false)
     private String parameterList;
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "batchId", nullable = false)
+    private Batch batchId;
+
+
     @Column
     private double value ;
+
+    @Column(updatable = false, nullable = false)
     private LocalDateTime lastUpdated;
 
     protected Sample() {
