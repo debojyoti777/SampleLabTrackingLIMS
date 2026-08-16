@@ -43,7 +43,6 @@ public class Sample {
     @JoinColumn(name = "batchId", nullable = false)
     private Batch batchId;
 
-
     @Column
     private double value ;
 
@@ -117,5 +116,13 @@ public class Sample {
 
     public void setValue(double value) {
         this.value = value;
+    }
+
+    public Batch getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(Batch batchId) {
+        this.batchId = batchId;
     }
 }

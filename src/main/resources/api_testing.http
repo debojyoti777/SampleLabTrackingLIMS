@@ -6,7 +6,7 @@ Content-Type: application/json
 {
     "sampleType" : "Urine",
     "parameterList" : "Steroids",
-    "sampleDesc" : "This is an example testing sample desc for another sample"
+    "batchDesc" : "This is an example testing sample desc for another sample"
 }
 
 ### Get a sample based on the Sample ID

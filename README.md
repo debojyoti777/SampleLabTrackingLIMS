@@ -74,7 +74,7 @@ Content-Type: application/json
 {
   "sampleType": "Blood",
   "parameterList": "Cholesterol",
-  "sampleDesc": "Routine cholesterol panel"
+  "batchDesc": "Routine cholesterol panel"
 }
 ```
 
@@ -183,7 +183,7 @@ AWS ECS Fargate  ──►  Application Load Balancer  ──►  Client
 | Field | Type | Notes |
 |---|---|---|
 | `sampleId` | `Long` | Auto-generated primary key |
-| `sampleDesc` | `String` | Free-text description |
+| `batchDesc` | `String` | Free-text description |
 | `sampleType` | `String` | e.g. Blood, Urine — required, immutable after creation |
 | `sampleStatus` | `String` | `RECEIVED`, `IN_PROGRESS`, `COMPLETED`, `ARCHIVED` |
 | `createDate` | `LocalDateTime` | Set on creation, immutable |

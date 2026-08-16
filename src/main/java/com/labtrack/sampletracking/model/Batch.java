@@ -3,6 +3,7 @@ package com.labtrack.sampletracking.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Database table schema object class that is handled by the Hibernate entity to create the Batch table in the database.
@@ -25,7 +26,7 @@ public class Batch {
     private int noOfSample;
 
     @Column()
-    private String sampleDesc;
+    private String batchDesc;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createDate;
@@ -39,19 +40,23 @@ public class Batch {
     @Column(updatable = false, nullable = false)
     private LocalDateTime lastUpdated;
 
-    public Batch( int noOfSample , Long batchId, String sampleDesc, LocalDateTime createDate, String updatedBy, String createdBy) {
-        this.batchId = batchId;
-        this.sampleDesc = sampleDesc;
+    @OneToMany(mappedBy = "batchId")
+    private List<Sample> sample;
+
+
+    public Batch(int noOfSample, String batchDesc, String updatedBy, String createdBy) {
         this.noOfSample = noOfSample;
-        this.createDate = createDate;
+        this.batchDesc = batchDesc;
         this.updatedBy = updatedBy;
         this.createdBy = createdBy;
-        this.lastUpdated = LocalDateTime.now();
     }
 
-    @PreUpdate
-    public void onUpdate() {
-        this.lastUpdated = LocalDateTime.now();
+    public Long getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(Long batchId) {
+        this.batchId = batchId;
     }
 
     public int getNoOfSample() {
@@ -62,12 +67,12 @@ public class Batch {
         this.noOfSample = noOfSample;
     }
 
-    public String getSampleDesc() {
-        return sampleDesc;
+    public String getBatchDesc() {
+        return batchDesc;
     }
 
-    public void setSampleDesc(String sampleDesc) {
-        this.sampleDesc = sampleDesc;
+    public void setBatchDesc(String batchDesc) {
+        this.batchDesc = batchDesc;
     }
 
     public LocalDateTime getCreateDate() {
@@ -94,12 +99,27 @@ public class Batch {
         this.createdBy = createdBy;
     }
 
-    public Long getBatchId() {
-        return batchId;
+    public List<Sample> getSample() {
+        return sample;
     }
 
-    public void setBatchId(Long batchId) {
-        this.batchId = batchId;
+    public void setSample(List<Sample> sample) {
+        this.sample = sample;
     }
+
+    public LocalDateTime getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(LocalDateTime lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
+
+    @PreUpdate
+    public void onUpdate() {
+        this.lastUpdated = LocalDateTime.now();
+    }
+
 
 }
