@@ -23,11 +23,9 @@ import static com.labtrack.sampletracking.model.Columns.parameterList;
 public class SampleController {
 
     private final SampleService sampleService;
-    private final BatchService batchService;
 
-    public SampleController(SampleService sampleService, BatchService batchService) {
+    public SampleController(SampleService sampleService ) {
         this.sampleService = sampleService;
-        this.batchService = batchService;
     }
 
     /**

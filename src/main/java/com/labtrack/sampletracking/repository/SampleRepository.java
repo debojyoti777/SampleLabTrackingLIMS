@@ -1,5 +1,6 @@
 package com.labtrack.sampletracking.repository;
 
+import com.labtrack.sampletracking.model.Batch;
 import com.labtrack.sampletracking.model.Sample;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -26,4 +27,5 @@ public interface SampleRepository extends JpaRepository<Sample, Long> {
 
     Sample getSampleBySampleIdAndParameterList(Long sampleID, String parameterList);
 
+    int countSampleByBatchId(Batch batch);
 }
