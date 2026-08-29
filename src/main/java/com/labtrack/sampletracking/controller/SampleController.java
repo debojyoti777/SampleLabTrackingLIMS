@@ -2,6 +2,7 @@ package com.labtrack.sampletracking.controller;
 
 import com.labtrack.sampletracking.dto.SampleRequest;
 import com.labtrack.sampletracking.model.Sample;
+import com.labtrack.sampletracking.service.BatchService;
 import com.labtrack.sampletracking.service.SampleService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class SampleController {
 
     private final SampleService sampleService;
 
-    public SampleController(SampleService sampleService) {
+    public SampleController(SampleService sampleService ) {
         this.sampleService = sampleService;
     }
 

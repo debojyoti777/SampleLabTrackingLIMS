@@ -18,4 +18,9 @@ spring:
     show-sql: true
     properties:
       hibernate:
+        jdbc:
+          batch_size: 30
+          order_inserts: true
+          datasource:
+            url: ${DB_URL}?rewriteBatchedStatements=true
         format_sql: true

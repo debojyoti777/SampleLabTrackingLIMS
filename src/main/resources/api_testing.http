@@ -1,12 +1,14 @@
+## --------------- Sample APIs ----------------------------------
+
 ### Create a sample
 
-POST http://13.200.233.118:8080/samples/create
+POST http://localhost:8080/samples/create
 Content-Type: application/json
 
 {
     "sampleType" : "Urine",
     "parameterList" : "Steroids",
-    "sampleDesc" : "This is an example testing sample desc for another sample"
+    "batchDesc" : "This is an example testing sample desc for another sample"
 }
 
 ### Get a sample based on the Sample ID
@@ -32,3 +34,29 @@ PATCH http://localhost:8080/samples/updatevalue/1?parameterList=Cholesterol&valu
 ### Delete a sample
 
 DELETE http://localhost:8080/samples/deletesample/1
+
+## ----------------------- Batch APIs ------------------------------------
+
+### Create a Batch
+
+POST  http://localhost:8080/batch/createBatch
+Content-Type: application/json
+
+{
+  "noOfSample": 3,
+  "batchDesc": "This is a new Batch with 3 samples",
+  "sampleParameterList": "Glucose",
+  "sampleType": "Blood"
+}
+
+### List all the Batches
+
+GET http://localhost:8080/batch/listBatches
+
+### Get a batch
+
+GET http://localhost:8080/batch/getBatch/1
+
+### Delete a Batch
+
+DELETE http://localhost:8080/batch/deleteBatch/1?forceDelete=true
