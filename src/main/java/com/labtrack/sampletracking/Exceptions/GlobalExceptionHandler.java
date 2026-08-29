@@ -66,4 +66,14 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
+
+    /**
+     * A requested Batch doesn't exist -> 404.
+     */
+    @ExceptionHandler(BatchNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBatchNotFoundError(BatchNotFoundException ex)
+    {
+        ErrorResponse body = new ErrorResponse(ErrorCodes.NOT_FOUND, ex.getErrorMessage(), 404);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
 }

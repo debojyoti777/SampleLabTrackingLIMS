@@ -59,4 +59,4 @@ GET http://localhost:8080/batch/getBatch/1
 
 ### Delete a Batch
 
-DELETE http://localhost:8080/batch/deleteBatch/1?forceDelete=false
+DELETE http://localhost:8080/batch/deleteBatch/1?forceDelete=true

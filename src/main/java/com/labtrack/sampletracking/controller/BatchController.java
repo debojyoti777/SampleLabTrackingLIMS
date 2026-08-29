@@ -53,9 +53,9 @@ public class BatchController {
      * @return The batch
      */
     @GetMapping("/getBatch/{id}")
-    public ResponseEntity<Batch> getBatch(@PathVariable Long id)
+    public ResponseEntity<BatchResponse> getBatch(@PathVariable Long id)
     {
-        Batch batch = batchService.getBatch(id);
+        BatchResponse batch = batchService.getBatch(id);
         return ResponseEntity.status(HttpStatus.OK).body(batch);
     }
 

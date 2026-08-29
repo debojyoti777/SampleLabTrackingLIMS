@@ -44,6 +44,28 @@ public class BatchService {
     }
 
     /**
+     * @return All the batches available.
+     */
+    public List<BatchResponse> listBatches()
+    {
+        ArrayList<Batch> batches = (ArrayList<Batch>) batchRepository.findBy();
+        return convertToBatchResponse(batches);
+    }
+
+    /**
+     * This is used to search and retrieve a single Batch on the basis of Batch ID.
+     * @param batchId The Batch ID that needs to be returned
+     * @return The BatchReponse object
+     */
+    public BatchResponse getBatch(Long batchId)
+    {
+        if(!batchRepository.existsById(batchId))
+            throw new BatchNotFoundException(batchId);
+        Batch requestedBatch = batchRepository.findByBatchId(batchId);
+        return convertToBatchResponse(requestedBatch);
+    }
+
+    /**
      * This method deletes a batch and conditionally deletes all the samples associated with it as well.
      * @param batchId The Batch ID of the Batch that needs to be deleted.
      * @param forceDelete - This takes a boolean value. True if we want to delete the batch and all the samples
@@ -51,6 +73,8 @@ public class BatchService {
      *                      are associated with it.
      */
     public void deleteBatch(Long batchId, boolean forceDelete) {
+        if(!batchRepository.existsById(batchId))
+            throw new BatchNotFoundException(batchId);
         int noOfSamples;
         Batch batch = batchRepository.findByBatchId(batchId);
         if (!forceDelete) {
@@ -67,27 +91,6 @@ public class BatchService {
             sampleRepository.deleteAll(samplesToBeDeleted);
             batchRepository.delete(batch);
         }
-    }
-
-    /**
-     * @return All the batches available.
-     */
-    public List<BatchResponse> listBatches()
-    {
-        ArrayList<Batch> batches = (ArrayList<Batch>) batchRepository.findBy();
-        return convertToBatchResponse(batches);
-    }
-
-    /**
-     * This is used to search and retrieve a single Batch on the basis of Batch ID.
-     * @param batchId The Batch Id that needs to be returned
-     * @return The Batch
-     */
-    public Batch getBatch(Long batchId)
-    {
-        if(!batchRepository.existsById(batchId))
-            throw new BatchNotFoundException(batchId);
-        return batchRepository.findByBatchId(batchId);
     }
 
     /**
@@ -114,9 +117,23 @@ public class BatchService {
     }
 
     /**
-     *
-     * @param batches
-     * @return
+     * Overloaded helper method to change only 1 Batch Object to the API response.
+     * @param batchToSearch The Batch that needs to be converted
+     * @return The BatchResponse object
+     */
+    private BatchResponse convertToBatchResponse(Batch batchToSearch)
+    {
+        ArrayList<Batch> batch = new ArrayList<>(1);
+        batch.add(batchToSearch);
+        List<BatchResponse> batchReturned = convertToBatchResponse(batch);
+        return batchReturned.get(0);
+    }
+
+    /**
+     * This is a helper method to convert the Batch object to a standard API response , to not expose the model schema
+     * to the Controller class
+     * @param batches List of the Batches that need to be converted
+     * @return List of BatchResponse objects
      */
     private List<BatchResponse> convertToBatchResponse(ArrayList<Batch> batches)
     {
@@ -131,9 +148,10 @@ public class BatchService {
     }
 
     /**
-     *
-     * @param newSamples
-     * @return
+     * This is a helper method to convert the Sample object to a standard API response , to not expose the model schema
+     * to the Controller class
+     * @param newSamples List of the Samples that need to be converted
+     * @return List of SampleResponse objects
      */
     private List<SampleSummary> convertToSampleSummary(List<Sample> newSamples)
     {
