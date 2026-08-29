@@ -40,7 +40,7 @@ public class Sample {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "batchId", nullable = false)
+    @JoinColumn(name = "batchId")
     private Batch batchId;
 
     @Column

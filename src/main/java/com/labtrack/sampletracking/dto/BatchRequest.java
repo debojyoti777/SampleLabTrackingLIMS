@@ -1,6 +1,7 @@
 package com.labtrack.sampletracking.dto;
 
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
 /**
@@ -9,7 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public class BatchRequest {
 
-    @NotBlank(message = "No of samples in required")
+    @Min(value = 1, message = "No of samples has to be min 1")
     private int noOfSample;
     private String batchDesc;
 

@@ -1,13 +1,13 @@
 package com.labtrack.sampletracking.controller;
 
 import com.labtrack.sampletracking.dto.BatchRequest;
+import com.labtrack.sampletracking.dto.BatchResponse;
 import com.labtrack.sampletracking.model.Batch;
 import com.labtrack.sampletracking.service.BatchService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 /**
@@ -29,19 +29,21 @@ public class BatchController {
      * @return Created batch object
      */
     @PostMapping("/createBatch")
-    public ResponseEntity<Batch> createBatch(@Valid @RequestBody BatchRequest batchRequest)
+    public ResponseEntity<BatchResponse> createBatch(@Valid @RequestBody BatchRequest batchRequest)
     {
-        Batch createdBatch = batchService.createBatch(batchRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBatch);
+        BatchResponse createdBatch = batchService.createBatch(batchRequest);
+        BatchResponse batchResponse = new BatchResponse(createdBatch.getBatchId(), createdBatch.getNoOfSample(), createdBatch.getBatchDesc(),
+                createdBatch.getCreateDate(),createdBatch.getSample());
+        return ResponseEntity.status(HttpStatus.CREATED).body(batchResponse);
     }
 
     /**
      * @return All the Batch records available.
      */
     @GetMapping("/listBatches")
-    public ResponseEntity<List<Batch>> listBatches()
+    public ResponseEntity<List<BatchResponse>> listBatches()
     {
-        List<Batch> batches = batchService.listBatches();
+        List<BatchResponse> batches = batchService.listBatches();
         return ResponseEntity.status(HttpStatus.OK).body(batches);
     }
 

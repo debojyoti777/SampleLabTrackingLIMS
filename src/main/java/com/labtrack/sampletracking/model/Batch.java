@@ -49,6 +49,8 @@ public class Batch {
         this.batchDesc = batchDesc;
         this.updatedBy = updatedBy;
         this.createdBy = createdBy;
+        this.lastUpdated = LocalDateTime.now();
+        this.createDate = LocalDateTime.now();
     }
 
     public Long getBatchId() {

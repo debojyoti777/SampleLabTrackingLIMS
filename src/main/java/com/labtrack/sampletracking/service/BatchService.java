@@ -4,6 +4,8 @@ package com.labtrack.sampletracking.service;
 import com.labtrack.sampletracking.Exceptions.BatchNotFoundException;
 import com.labtrack.sampletracking.Exceptions.IllegalUpdateException;
 import com.labtrack.sampletracking.dto.BatchRequest;
+import com.labtrack.sampletracking.dto.BatchResponse;
+import com.labtrack.sampletracking.dto.SampleSummary;
 import com.labtrack.sampletracking.model.Batch;
 import com.labtrack.sampletracking.model.Sample;
 import com.labtrack.sampletracking.repository.BatchRepository;
@@ -33,12 +35,12 @@ public class BatchService {
      * @param batchRequest Batch Request JSON object from the Controller layer.
      * @return The created Batch.
      */
-    public Batch createBatch(BatchRequest batchRequest) {
+    public BatchResponse createBatch(BatchRequest batchRequest) {
         Batch batch = new Batch(batchRequest.getNoOfSample(), batchRequest.getBatchDesc(), "admin", "admin");
         Batch newBatch = batchRepository.save(batch);
-        List<Sample> newSamples = createBatchSamples(newBatch.getNoOfSample(), newBatch, batchRequest );
-        newBatch.setSample(newSamples);
-        return batchRepository.save(newBatch);
+        List<SampleSummary> newSamples = createBatchSamples(newBatch.getNoOfSample(), newBatch, batchRequest );
+        return new BatchResponse(newBatch.getBatchId(), newBatch.getNoOfSample(), newBatch.getBatchDesc(),
+                newBatch.getCreateDate(), newSamples);
     }
 
     /**
@@ -70,9 +72,10 @@ public class BatchService {
     /**
      * @return All the batches available.
      */
-    public List<Batch> listBatches()
+    public List<BatchResponse> listBatches()
     {
-        return batchRepository.findBy();
+        ArrayList<Batch> batches = (ArrayList<Batch>) batchRepository.findBy();
+        return convertToBatchResponse(batches);
     }
 
     /**
@@ -95,7 +98,7 @@ public class BatchService {
      * @return List of all the new samples that got added for this batch in the DB.
      */
 
-    private List<Sample> createBatchSamples(int noOfSamples, Batch newBatch, BatchRequest batchRequest)
+    private List<SampleSummary> createBatchSamples(int noOfSamples, Batch newBatch, BatchRequest batchRequest)
     {
         ArrayList<Sample> samplesToBeAdded = new ArrayList<>();
         for (int i = 0; i < noOfSamples; i++) {
@@ -104,6 +107,41 @@ public class BatchService {
             sample.setBatchId(newBatch);
             samplesToBeAdded.add(sample);
         }
-        return sampleRepository.saveAll(samplesToBeAdded);
+        ArrayList<Sample> newSamples = (ArrayList<Sample>) sampleRepository.saveAll(samplesToBeAdded);
+        newBatch.setSample(newSamples);
+        batchRepository.save(newBatch);
+        return convertToSampleSummary(newSamples);
+    }
+
+    /**
+     *
+     * @param batches
+     * @return
+     */
+    private List<BatchResponse> convertToBatchResponse(ArrayList<Batch> batches)
+    {
+        ArrayList<BatchResponse> batchList = new ArrayList<>();
+        for(Batch batch : batches)
+        {
+            List<Sample> samples = batch.getSample();
+            batchList.add(new BatchResponse(batch.getBatchId(), batch.getNoOfSample(), batch.getBatchDesc(),
+                    batch.getCreateDate(), convertToSampleSummary(samples)));
+        }
+        return batchList;
+    }
+
+    /**
+     *
+     * @param newSamples
+     * @return
+     */
+    private List<SampleSummary> convertToSampleSummary(List<Sample> newSamples)
+    {
+        ArrayList <SampleSummary> samples = new ArrayList<>();
+        for (Sample sample : newSamples) {
+            samples.add(new SampleSummary(sample.getSampleId(), sample.getSampleDesc(), sample.getSampleType(),
+                    sample.getStatus(), sample.getCreateDate(), sample.getParameterList() , sample.getValue()));
+        }
+        return samples;
     }
 }
