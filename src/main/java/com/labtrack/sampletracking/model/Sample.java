@@ -1,7 +1,6 @@
 package com.labtrack.sampletracking.model;
 
 import jakarta.persistence.*;
-import com.labtrack.sampletracking.model.SampleStatus;
 
 import java.time.LocalDateTime;
 
@@ -37,7 +36,6 @@ public class Sample {
 
     @Column(nullable = false)
     private String parameterList;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "batchId")

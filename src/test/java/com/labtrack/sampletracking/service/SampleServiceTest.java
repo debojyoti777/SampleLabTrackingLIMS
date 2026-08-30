@@ -2,6 +2,7 @@ package com.labtrack.sampletracking.service;
 
 import com.labtrack.sampletracking.Exceptions.IllegalUpdateException;
 import com.labtrack.sampletracking.dto.SampleRequest;
+import com.labtrack.sampletracking.dto.SampleSummary;
 import com.labtrack.sampletracking.model.Sample;
 import com.labtrack.sampletracking.model.SampleStatus;
 import com.labtrack.sampletracking.repository.SampleRepository;
@@ -69,7 +70,7 @@ class SampleServiceTest {
 
             when(sampleRepository.save(any(Sample.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            Sample created = sampleService.createSample(request);
+            SampleSummary created = sampleService.createSample(request);
 
             assertNotNull(created);
             assertEquals("Blood", created.getSampleType());

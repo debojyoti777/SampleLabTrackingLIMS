@@ -3,9 +3,11 @@ package com.labtrack.sampletracking.service;
 import com.labtrack.sampletracking.Exceptions.SampleNotFoundException;
 import com.labtrack.sampletracking.Exceptions.IllegalUpdateException;
 import com.labtrack.sampletracking.dto.SampleRequest;
+import com.labtrack.sampletracking.dto.SampleSummary;
 import com.labtrack.sampletracking.model.*;
 import com.labtrack.sampletracking.model.SampleStatus;
 import com.labtrack.sampletracking.repository.SampleRepository;
+import com.labtrack.sampletracking.util.ConvertUtil;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -21,19 +23,21 @@ import java.util.List;
 public class SampleService {
 
     private final SampleRepository sampleRepository;
+    private final ConvertUtil convertUtil;
 
     public SampleService(SampleRepository sampleRepository) {
         this.sampleRepository = sampleRepository;
+        this.convertUtil = new ConvertUtil();
     }
 
     /**
      * @param request Request from controller class to create a new Sample
      * @return Created Sample
      */
-    public Sample createSample(SampleRequest request) {
+    public SampleSummary createSample(SampleRequest request) {
 
         Sample sample = new Sample(request.getSampleDesc(), request.getSampleType(), "admin", request.getParameterList());
-        return sampleRepository.save(sample);
+        return convertUtil.convertToSampleSummary(sampleRepository.save(sample));
     }
 
     /**
@@ -41,9 +45,9 @@ public class SampleService {
      * @return The Sample object
      */
     @NotNull
-    public Sample getSample(Long sampleId) {
+    public SampleSummary getSample(Long sampleId) {
         if (sampleRepository.existsById(sampleId))
-            return sampleRepository.findBySampleId(sampleId);
+            return convertUtil.convertToSampleSummary(sampleRepository.findBySampleId(sampleId));
         else
             throw new SampleNotFoundException(sampleId);
     }
@@ -55,25 +59,25 @@ public class SampleService {
      * @return List of the Samples coming back from the search.
      */
     @NotNull
-    public List<Sample> searchSamples(String columnToSearch, String value) {
+    public List<SampleSummary> searchSamples(String columnToSearch, String value) {
         String column = columnToSearch.toLowerCase().replace(" ", "");
         if(!isValidColumn(column))
             throw new IllegalUpdateException();
-        return switch (column) {
+        return convertUtil.convertToSampleSummary(switch (column) {
             case Columns.sampleStatus -> sampleRepository.findBySampleStatus(value.toUpperCase());
             case Columns.sampleType -> sampleRepository.findBySampleType(value);
             case Columns.createdBy -> sampleRepository.findByCreatedBy(value);
             case Columns.parameterList -> sampleRepository.findByParameterList(value);
             case Columns.sampleDesc -> sampleRepository.findBySampleDescStartingWith(value);
             default -> sampleRepository.findBy();
-        };
+        });
     }
 
     /**
      * @return all the samples available
      */
-    public List<Sample> listSamples(){
-        return sampleRepository.findBy();
+    public List<SampleSummary> listSamples(){
+        return convertUtil.convertToSampleSummary(sampleRepository.findBy());
     }
 
     /**
@@ -81,14 +85,14 @@ public class SampleService {
      * @param newStatus The new status of the sample
      * @return - sample with the new status
      */
-    public Sample updateStatus(Long id, String newStatus) {
-        Sample sample = getSample(id);
+    public SampleSummary updateStatus(Long id, String newStatus) {
+        Sample sample = sampleRepository.findBySampleId(id);
         if (newStatus.equalsIgnoreCase(SampleStatus.completed)) {
             if (sample.getValue() == 0.0)
                 throw new IllegalUpdateException();
         }
         sample.setStatus(newStatus);
-        return sampleRepository.save(sample);
+        return convertUtil.convertToSampleSummary(sampleRepository.save(sample));
     }
 
     /**
@@ -96,19 +100,21 @@ public class SampleService {
      * @param value The value
      * @return - sample with the saved status
      */
-    public Sample enterOrUpdateValue(Long id,String parameterList, double value) {
+    public SampleSummary enterOrUpdateValue(Long id, String parameterList, double value) {
         Sample sample = sampleRepository.getSampleBySampleIdAndParameterList(id,parameterList);
         if (sample.getValue() == 0.0)
             updateStatus(sample.getSampleId(), SampleStatus.inProgress);
         sample.setValue(value);
-        return sampleRepository.save(sample);
+        return convertUtil.convertToSampleSummary(sampleRepository.save(sample));
     }
 
     /**
      * @param id Sample ID of the sample to be deleted
      */
     public void deleteSample(Long id) {
-        Sample sample = getSample(id);
+        Sample sample = sampleRepository.findBySampleId(id);
+        if(sample == null)
+            throw new SampleNotFoundException(id);
         sampleRepository.delete(sample);
     }
 

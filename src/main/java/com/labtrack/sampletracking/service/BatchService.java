@@ -10,6 +10,7 @@ import com.labtrack.sampletracking.model.Batch;
 import com.labtrack.sampletracking.model.Sample;
 import com.labtrack.sampletracking.repository.BatchRepository;
 import com.labtrack.sampletracking.repository.SampleRepository;
+import com.labtrack.sampletracking.util.ConvertUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,10 +25,12 @@ public class BatchService {
 
     private final BatchRepository batchRepository;
     private final SampleRepository sampleRepository;
+    private final ConvertUtil convertUtil;
 
     public BatchService(BatchRepository batchRepository, SampleRepository sampleRepository) {
         this.batchRepository = batchRepository;
         this.sampleRepository = sampleRepository;
+        this.convertUtil = new ConvertUtil();
     }
 
     /**
@@ -46,10 +49,8 @@ public class BatchService {
     /**
      * @return All the batches available.
      */
-    public List<BatchResponse> listBatches()
-    {
-        ArrayList<Batch> batches = (ArrayList<Batch>) batchRepository.findBy();
-        return convertToBatchResponse(batches);
+    public List<BatchResponse> listBatches() {
+        return convertUtil.convertToBatchResponse((ArrayList<Batch>) batchRepository.findBy());
     }
 
     /**
@@ -57,12 +58,10 @@ public class BatchService {
      * @param batchId The Batch ID that needs to be returned
      * @return The BatchReponse object
      */
-    public BatchResponse getBatch(Long batchId)
-    {
+    public BatchResponse getBatch(Long batchId) {
         if(!batchRepository.existsById(batchId))
             throw new BatchNotFoundException(batchId);
-        Batch requestedBatch = batchRepository.findByBatchId(batchId);
-        return convertToBatchResponse(requestedBatch);
+        return convertUtil.convertToBatchResponse(batchRepository.findByBatchId(batchId));
     }
 
     /**
@@ -101,8 +100,7 @@ public class BatchService {
      * @return List of all the new samples that got added for this batch in the DB.
      */
 
-    private List<SampleSummary> createBatchSamples(int noOfSamples, Batch newBatch, BatchRequest batchRequest)
-    {
+    private List<SampleSummary> createBatchSamples(int noOfSamples, Batch newBatch, BatchRequest batchRequest) {
         ArrayList<Sample> samplesToBeAdded = new ArrayList<>();
         for (int i = 0; i < noOfSamples; i++) {
             Sample sample = new Sample(batchRequest.getSampleDesc(),batchRequest.getSampleType(),
@@ -113,53 +111,6 @@ public class BatchService {
         ArrayList<Sample> newSamples = (ArrayList<Sample>) sampleRepository.saveAll(samplesToBeAdded);
         newBatch.setSample(newSamples);
         batchRepository.save(newBatch);
-        return convertToSampleSummary(newSamples);
-    }
-
-    /**
-     * Overloaded helper method to change only 1 Batch Object to the API response.
-     * @param batchToSearch The Batch that needs to be converted
-     * @return The BatchResponse object
-     */
-    private BatchResponse convertToBatchResponse(Batch batchToSearch)
-    {
-        ArrayList<Batch> batch = new ArrayList<>(1);
-        batch.add(batchToSearch);
-        List<BatchResponse> batchReturned = convertToBatchResponse(batch);
-        return batchReturned.get(0);
-    }
-
-    /**
-     * This is a helper method to convert the Batch object to a standard API response , to not expose the model schema
-     * to the Controller class
-     * @param batches List of the Batches that need to be converted
-     * @return List of BatchResponse objects
-     */
-    private List<BatchResponse> convertToBatchResponse(ArrayList<Batch> batches)
-    {
-        ArrayList<BatchResponse> batchList = new ArrayList<>();
-        for(Batch batch : batches)
-        {
-            List<Sample> samples = batch.getSample();
-            batchList.add(new BatchResponse(batch.getBatchId(), batch.getNoOfSample(), batch.getBatchDesc(),
-                    batch.getCreateDate(), convertToSampleSummary(samples)));
-        }
-        return batchList;
-    }
-
-    /**
-     * This is a helper method to convert the Sample object to a standard API response , to not expose the model schema
-     * to the Controller class
-     * @param newSamples List of the Samples that need to be converted
-     * @return List of SampleResponse objects
-     */
-    private List<SampleSummary> convertToSampleSummary(List<Sample> newSamples)
-    {
-        ArrayList <SampleSummary> samples = new ArrayList<>();
-        for (Sample sample : newSamples) {
-            samples.add(new SampleSummary(sample.getSampleId(), sample.getSampleDesc(), sample.getSampleType(),
-                    sample.getStatus(), sample.getCreateDate(), sample.getParameterList() , sample.getValue()));
-        }
-        return samples;
+        return convertUtil.convertToSampleSummary(newSamples);
     }
 }

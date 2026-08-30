@@ -1,6 +1,7 @@
 package com.labtrack.sampletracking.controller;
 
 import com.labtrack.sampletracking.dto.SampleRequest;
+import com.labtrack.sampletracking.dto.SampleSummary;
 import com.labtrack.sampletracking.model.Sample;
 import com.labtrack.sampletracking.service.BatchService;
 import com.labtrack.sampletracking.service.SampleService;
@@ -34,8 +35,8 @@ public class SampleController {
      * @return Response is the HTTP status code from this operation
      */
     @PostMapping("/create")
-    public ResponseEntity<Sample> registerSample(@Valid @RequestBody SampleRequest request) {
-        Sample created = sampleService.createSample(request);
+    public ResponseEntity<SampleSummary> registerSample(@Valid @RequestBody SampleRequest request) {
+        SampleSummary created = sampleService.createSample(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -45,7 +46,7 @@ public class SampleController {
      * @return The Sample JSON object to the frontend
      */
     @GetMapping("/getsample/{id}")
-    public ResponseEntity<Sample> getSample(@PathVariable Long id) {
+    public ResponseEntity<SampleSummary> getSample(@PathVariable Long id) {
         return ResponseEntity.ok(sampleService.getSample(id));
     }
 
@@ -54,7 +55,7 @@ public class SampleController {
      * @return - The list of Sample objects retrieved
      */
     @GetMapping("/listsamples")
-    public ResponseEntity<List<Sample>> listSamples() {
+    public ResponseEntity<List<SampleSummary>> listSamples() {
         return ResponseEntity.ok(sampleService.listSamples());
     }
 
@@ -65,9 +66,9 @@ public class SampleController {
      * @return List of the Sample objects that gets returned from the search
      */
     @GetMapping("/search")
-    public ResponseEntity<List<Sample>> searchSamples(
+    public ResponseEntity<List<SampleSummary>> searchSamples(
             @RequestParam String columnToSearch, @RequestParam String searchValue){
-        List<Sample> sample = sampleService.searchSamples(columnToSearch,searchValue);
+        List<SampleSummary> sample = sampleService.searchSamples(columnToSearch,searchValue);
         return ResponseEntity.ok(sampleService.searchSamples(columnToSearch,searchValue));
     }
 
@@ -78,7 +79,7 @@ public class SampleController {
      * @return Sample JSON object with the updated status
      */
     @PatchMapping("/updatestatus/{id}")
-    public ResponseEntity<Sample> updateStatus(
+    public ResponseEntity<SampleSummary> updateStatus(
             @PathVariable Long id,
             @RequestParam String updatedStatus ) {
         return ResponseEntity.ok(sampleService.updateStatus(id, updatedStatus));
@@ -92,7 +93,7 @@ public class SampleController {
      * @return Sample JSON object with the updated value
      */
     @PatchMapping("/updatevalue/{id}")
-    public ResponseEntity<Sample> enterOrUpdateValue(
+    public ResponseEntity<SampleSummary> enterOrUpdateValue(
             @PathVariable Long id, @RequestParam String parameterList, @RequestParam double value){
         return ResponseEntity.ok(sampleService.enterOrUpdateValue(id,parameterList,value));
     }

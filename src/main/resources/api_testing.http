@@ -13,27 +13,27 @@ Content-Type: application/json
 
 ### Get a sample based on the Sample ID
 
-GET http://13.200.233.118:8080/samples/getsample/1
+GET http://localhost:8080/samples/getsample/44
 
 ### List all the samples available
 
-GET http://sampletracking-alb-1324203417.ap-south-1.elb.amazonaws.com/samples/listsamples
+GET http://localhost:8080/samples/listsamples
 
 ### Search for a sample by their column and a value.
 
-GET http://localhost:8080/samples/search?columnToSearch=sampleTy&searchValue=Piss
+GET http://localhost:8080/samples/search?columnToSearch=sampleType&searchValue=urine
 
 ### Update the status of a sample
 
-PATCH http://localhost:8080/samples/updatestatus/1?updatedStatus=archived
+PATCH http://localhost:8080/samples/updatestatus/5?updatedStatus=archived
 
 ### Enter or Update a value of a sample
 
-PATCH http://localhost:8080/samples/updatevalue/1?parameterList=Cholesterol&value=23.44
+PATCH http://localhost:8080/samples/updatevalue/4?parameterList=Glucose&value=23.44
 
 ### Delete a sample
 
-DELETE http://localhost:8080/samples/deletesample/1
+DELETE http://localhost:8080/samples/deletesample/27
 
 ## ----------------------- Batch APIs ------------------------------------
 
@@ -43,9 +43,9 @@ POST  http://localhost:8080/batch/createBatch
 Content-Type: application/json
 
 {
-  "noOfSample": 3,
+  "noOfSample": 5,
   "batchDesc": "This is a new Batch with 3 samples",
-  "sampleParameterList": "Glucose",
+  "sampleParameterList": "LFT",
   "sampleType": "Blood"
 }
 
@@ -55,8 +55,8 @@ GET http://localhost:8080/batch/listBatches
 
 ### Get a batch
 
-GET http://localhost:8080/batch/getBatch/1
+GET http://localhost:8080/batch/getBatch/5
 
 ### Delete a Batch
 
-DELETE http://localhost:8080/batch/deleteBatch/1?forceDelete=true
+DELETE http://localhost:8080/batch/deleteBatch/5?forceDelete=true
