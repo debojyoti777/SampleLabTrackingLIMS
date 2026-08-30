@@ -1,6 +1,7 @@
 package com.labtrack.sampletracking.service;
 
 import com.labtrack.sampletracking.Exceptions.IllegalUpdateException;
+import com.labtrack.sampletracking.Exceptions.SampleNotFoundException;
 import com.labtrack.sampletracking.dto.SampleRequest;
 import com.labtrack.sampletracking.dto.SampleSummary;
 import com.labtrack.sampletracking.model.Sample;
@@ -25,12 +26,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link SampleService}.
- * <p>
- * These tests inject a real {@link IllegalUpdateException} via
- * {@link ReflectionTestUtils} so they verify the *intended* behavior once
- * {@code sre} is properly initialized in {@code SampleService} (e.g.
- * {@code sre = new IllegalUpdateException();} in the constructor), the
- * production code will match what's tested here.
+ * @author Debojyoti Mallick
  */
 @ExtendWith(MockitoExtension.class)
 class SampleServiceTest {
@@ -45,10 +41,6 @@ class SampleServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Work around the uninitialized `sre` field so intended exception
-        // behavior can actually be verified (see class-level note above).
-        ReflectionTestUtils.setField(sampleService, "sre", new IllegalUpdateException());
-
         sample = new Sample("Routine blood panel", "Blood", "admin", "Glucose,Cholesterol");
         ReflectionTestUtils.setField(sample, "sampleId", 1L);
     }
@@ -61,8 +53,8 @@ class SampleServiceTest {
     class CreateSample {
 
         @Test
-        @DisplayName("builds a Sample from the request and saves it")
-        void createSample_savesAndReturnsSample() {
+        @DisplayName("builds a Sample from the request, saves it, and returns it as a SampleSummary")
+        void createSample_savesAndReturnsSummary() {
             SampleRequest request = new SampleRequest();
             request.setSampleType("Blood");
             request.setParameterList("Glucose,Cholesterol");
@@ -76,8 +68,7 @@ class SampleServiceTest {
             assertEquals("Blood", created.getSampleType());
             assertEquals("Glucose,Cholesterol", created.getParameterList());
             assertEquals("Routine blood panel", created.getSampleDesc());
-            assertEquals(SampleStatus.received, created.getStatus());
-            assertEquals("admin", created.getCreatedBy());
+            assertEquals(SampleStatus.received, created.getSampleStatus());
             assertEquals(0.0, created.getValue());
             verify(sampleRepository, times(1)).save(any(Sample.class));
         }
@@ -91,12 +82,12 @@ class SampleServiceTest {
     class GetSample {
 
         @Test
-        @DisplayName("returns the sample when the id exists")
-        void getSample_whenExists_returnsSample() {
+        @DisplayName("returns the sample as a SampleSummary when the id exists")
+        void getSample_whenExists_returnsSummary() {
             when(sampleRepository.existsById(1L)).thenReturn(true);
             when(sampleRepository.findBySampleId(1L)).thenReturn(sample);
 
-            Sample result = sampleService.getSample(1L);
+            SampleSummary result = sampleService.getSample(1L);
 
             assertNotNull(result);
             assertEquals(1L, result.getSampleId());
@@ -104,13 +95,11 @@ class SampleServiceTest {
         }
 
         @Test
-        @DisplayName("throws when the id does not exist")
+        @DisplayName("throws SampleNotFoundException when the id does not exist")
         void getSample_whenNotExists_throwsException() {
             when(sampleRepository.existsById(99L)).thenReturn(false);
 
-            // Intended behavior: IllegalUpdateException.sampleNotFoundException
-            // explicitly throws NullPointerException with a descriptive message.
-            NullPointerException ex = assertThrows(NullPointerException.class,
+            SampleNotFoundException ex = assertThrows(SampleNotFoundException.class,
                     () -> sampleService.getSample(99L));
             assertTrue(ex.getMessage().contains("99"));
             verify(sampleRepository, never()).findBySampleId(anyLong());
@@ -129,7 +118,7 @@ class SampleServiceTest {
         void searchSamples_bySampleStatus() {
             when(sampleRepository.findBySampleStatus("RECEIVED")).thenReturn(List.of(sample));
 
-            List<Sample> results = sampleService.searchSamples("sampleStatus", "received");
+            List<SampleSummary> results = sampleService.searchSamples("sampleStatus", "received");
 
             assertEquals(1, results.size());
             verify(sampleRepository).findBySampleStatus("RECEIVED");
@@ -140,9 +129,10 @@ class SampleServiceTest {
         void searchSamples_bySampleType() {
             when(sampleRepository.findBySampleType("Blood")).thenReturn(List.of(sample));
 
-            List<Sample> results = sampleService.searchSamples("sampleType", "Blood");
+            List<SampleSummary> results = sampleService.searchSamples("sampleType", "Blood");
 
             assertEquals(1, results.size());
+            assertEquals("Blood", results.get(0).getSampleType());
             verify(sampleRepository).findBySampleType("Blood");
         }
 
@@ -151,7 +141,7 @@ class SampleServiceTest {
         void searchSamples_byCreatedBy() {
             when(sampleRepository.findByCreatedBy("admin")).thenReturn(List.of(sample));
 
-            List<Sample> results = sampleService.searchSamples("createdBy", "admin");
+            List<SampleSummary> results = sampleService.searchSamples("createdBy", "admin");
 
             assertEquals(1, results.size());
             verify(sampleRepository).findByCreatedBy("admin");
@@ -162,18 +152,18 @@ class SampleServiceTest {
         void searchSamples_byParameterList() {
             when(sampleRepository.findByParameterList("Glucose,Cholesterol")).thenReturn(List.of(sample));
 
-            List<Sample> results = sampleService.searchSamples("parameterList", "Glucose,Cholesterol");
+            List<SampleSummary> results = sampleService.searchSamples("parameterList", "Glucose,Cholesterol");
 
             assertEquals(1, results.size());
             verify(sampleRepository).findByParameterList("Glucose,Cholesterol");
         }
 
         @Test
-        @DisplayName("searches by sampleDescStartsWith (the special-cased column)")
-        void searchSamples_bySampleDescStartsWith() {
+        @DisplayName("searches by sampleDesc (starts-with match)")
+        void searchSamples_bySampleDesc() {
             when(sampleRepository.findBySampleDescStartingWith("Routine")).thenReturn(List.of(sample));
 
-            List<Sample> results = sampleService.searchSamples("sampleDesc", "Routine");
+            List<SampleSummary> results = sampleService.searchSamples("sampleDesc", "Routine");
 
             assertEquals(1, results.size());
             verify(sampleRepository).findBySampleDescStartingWith("Routine");
@@ -184,30 +174,25 @@ class SampleServiceTest {
         void searchSamples_columnNameIsNormalized() {
             when(sampleRepository.findBySampleType("Blood")).thenReturn(List.of(sample));
 
-            List<Sample> results = sampleService.searchSamples(" Sample Type ".trim(), "Blood");
+            List<SampleSummary> results = sampleService.searchSamples("Sample Type", "Blood");
 
             assertEquals(1, results.size());
         }
 
         @Test
-        @DisplayName("throws IllegalArgumentException for a column that isn't in isValidColumn at all")
+        @DisplayName("throws IllegalUpdateException for a column that isn't in isValidColumn at all")
         void searchSamples_invalidColumn_throwsException() {
-            assertThrows(IllegalArgumentException.class,
+            assertThrows(IllegalUpdateException.class,
                     () -> sampleService.searchSamples("notARealColumn", "whatever"));
             verifyNoInteractions(sampleRepository);
         }
 
         @Test
-        @DisplayName("KNOWN QUIRK: a column considered 'valid' but not wired into the switch " +
-                "(e.g. sampleId, sampleDesc, createDate, updatedBy, value) silently falls through " +
-                "to findBy() and returns ALL samples instead of searching")
+        @DisplayName("Returns all the samples in this situation as these columns are not yet eligible for search")
         void searchSamples_validButUnhandledColumn_returnsAllSamplesInstead() {
             when(sampleRepository.findBy()).thenReturn(List.of(sample));
 
-            // "value" passes isValidColumn(...) but has no case in the switch,
-            // so it silently falls to the default branch (findBy() = all samples)
-            // rather than searching by value or throwing an error.
-            List<Sample> results = sampleService.searchSamples("value", "0.0");
+            List<SampleSummary> results = sampleService.searchSamples("value", "0.0");
 
             assertEquals(1, results.size());
             verify(sampleRepository).findBy();
@@ -222,11 +207,11 @@ class SampleServiceTest {
     class ListSamples {
 
         @Test
-        @DisplayName("returns every sample from the repository")
+        @DisplayName("returns every sample from the repository as SampleSummaries")
         void listSamples_returnsAll() {
             when(sampleRepository.findBy()).thenReturn(List.of(sample));
 
-            List<Sample> results = sampleService.listSamples();
+            List<SampleSummary> results = sampleService.listSamples();
 
             assertEquals(1, results.size());
             verify(sampleRepository).findBy();
@@ -243,23 +228,21 @@ class SampleServiceTest {
         @Test
         @DisplayName("updates to a normal (non-completed) status")
         void updateStatus_toInProgress_succeeds() {
-            when(sampleRepository.existsById(1L)).thenReturn(true);
             when(sampleRepository.findBySampleId(1L)).thenReturn(sample);
             when(sampleRepository.save(any(Sample.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            Sample updated = sampleService.updateStatus(1L, SampleStatus.inProgress);
+            SampleSummary updated = sampleService.updateStatus(1L, SampleStatus.inProgress);
 
-            assertEquals(SampleStatus.inProgress, updated.getStatus());
+            assertEquals(SampleStatus.inProgress, updated.getSampleStatus());
             verify(sampleRepository).save(sample);
         }
 
         @Test
         @DisplayName("throws when moving to COMPLETED while value is still 0.0")
         void updateStatus_toCompleted_withZeroValue_throwsException() {
-            when(sampleRepository.existsById(1L)).thenReturn(true);
             when(sampleRepository.findBySampleId(1L)).thenReturn(sample);
 
-            assertThrows(IllegalArgumentException.class,
+            assertThrows(IllegalUpdateException.class,
                     () -> sampleService.updateStatus(1L, SampleStatus.completed));
             verify(sampleRepository, never()).save(any(Sample.class));
         }
@@ -268,21 +251,20 @@ class SampleServiceTest {
         @DisplayName("succeeds moving to COMPLETED once a real value has been entered")
         void updateStatus_toCompleted_withValueSet_succeeds() {
             sample.setValue(45.5);
-            when(sampleRepository.existsById(1L)).thenReturn(true);
             when(sampleRepository.findBySampleId(1L)).thenReturn(sample);
             when(sampleRepository.save(any(Sample.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            Sample updated = sampleService.updateStatus(1L, SampleStatus.completed);
+            SampleSummary updated = sampleService.updateStatus(1L, SampleStatus.completed);
 
-            assertEquals(SampleStatus.completed, updated.getStatus());
+            assertEquals(SampleStatus.completed, updated.getSampleStatus());
         }
 
         @Test
-        @DisplayName("propagates not-found when the sample id doesn't exist")
-        void updateStatus_sampleNotFound_throwsException() {
-            when(sampleRepository.existsById(99L)).thenReturn(false);
+        @DisplayName("throws SampleNotFoundException when the Sample ID does not exist")
+        void updateStatus_sampleNotFound() {
+            when(sampleRepository.findBySampleId(99L)).thenReturn(null);
 
-            assertThrows(NullPointerException.class,
+            assertThrows(SampleNotFoundException.class,
                     () -> sampleService.updateStatus(99L, SampleStatus.inProgress));
         }
     }
@@ -300,15 +282,14 @@ class SampleServiceTest {
             // sample.value starts at 0.0 from the constructor ("blank")
             when(sampleRepository.getSampleBySampleIdAndParameterList(1L, "Glucose"))
                     .thenReturn(sample);
-            // updateStatus(...) internally re-fetches via getSample -> findBySampleId
-            when(sampleRepository.existsById(1L)).thenReturn(true);
+            // updateStatus(...) is called internally and re-fetches via findBySampleId
             when(sampleRepository.findBySampleId(1L)).thenReturn(sample);
             when(sampleRepository.save(any(Sample.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            Sample updated = sampleService.enterOrUpdateValue(1L, "Glucose", 99.9);
+            SampleSummary updated = sampleService.enterOrUpdateValue(1L, "Glucose", 99.9);
 
             assertEquals(99.9, updated.getValue());
-            assertEquals(SampleStatus.inProgress, updated.getStatus());
+            assertEquals(SampleStatus.inProgress, updated.getSampleStatus());
             // saved twice: once inside updateStatus, once for the value itself
             verify(sampleRepository, times(2)).save(any(Sample.class));
         }
@@ -322,13 +303,23 @@ class SampleServiceTest {
                     .thenReturn(sample);
             when(sampleRepository.save(any(Sample.class))).thenAnswer(inv -> inv.getArgument(0));
 
-            Sample updated = sampleService.enterOrUpdateValue(1L, "Glucose", 55.0);
+            SampleSummary updated = sampleService.enterOrUpdateValue(1L, "Glucose", 55.0);
 
             assertEquals(55.0, updated.getValue());
-            assertEquals(SampleStatus.inProgress, updated.getStatus());
-            // only one save this time — updateStatus's extra save path never runs
+            assertEquals(SampleStatus.inProgress, updated.getSampleStatus());
+            // only one save this time - updateStatus's extra save path never runs
             verify(sampleRepository, times(1)).save(any(Sample.class));
-            verify(sampleRepository, never()).existsById(anyLong());
+            verify(sampleRepository, never()).findBySampleId(anyLong());
+        }
+
+        @Test
+        @DisplayName("throws SampleNotFoundException when the Sample ID does not exist")
+        void enterOrUpdateValue_noMatch() {
+            when(sampleRepository.getSampleBySampleIdAndParameterList(1L, "Unknown"))
+                    .thenReturn(null);
+
+            assertThrows(SampleNotFoundException.class,
+                    () -> sampleService.enterOrUpdateValue(1L, "Unknown", 10.0));
         }
     }
 
@@ -342,7 +333,6 @@ class SampleServiceTest {
         @Test
         @DisplayName("deletes the sample when it exists")
         void deleteSample_whenExists_deletesIt() {
-            when(sampleRepository.existsById(1L)).thenReturn(true);
             when(sampleRepository.findBySampleId(1L)).thenReturn(sample);
 
             sampleService.deleteSample(1L);
@@ -351,11 +341,11 @@ class SampleServiceTest {
         }
 
         @Test
-        @DisplayName("throws instead of deleting when the sample doesn't exist")
+        @DisplayName("throws SampleNotFoundException instead of deleting when the sample doesn't exist")
         void deleteSample_whenNotFound_throwsAndNeverDeletes() {
-            when(sampleRepository.existsById(99L)).thenReturn(false);
+            when(sampleRepository.findBySampleId(99L)).thenReturn(null);
 
-            assertThrows(NullPointerException.class,
+            assertThrows(SampleNotFoundException.class,
                     () -> sampleService.deleteSample(99L));
             verify(sampleRepository, never()).delete(any(Sample.class));
         }

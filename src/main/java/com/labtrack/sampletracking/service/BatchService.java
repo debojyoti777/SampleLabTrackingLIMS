@@ -36,7 +36,7 @@ public class BatchService {
     /**
      * This method creates a new batch and then creates and associates the given no of samples.
      * @param batchRequest Batch Request JSON object from the Controller layer.
-     * @return The created Batch.
+     * @return The created Batch in the BatchResponse format.
      */
     public BatchResponse createBatch(BatchRequest batchRequest) {
         Batch batch = new Batch(batchRequest.getNoOfSample(), batchRequest.getBatchDesc(), "admin", "admin");
@@ -47,7 +47,7 @@ public class BatchService {
     }
 
     /**
-     * @return All the batches available.
+     * @return All the batches available in the format of BatchResponse object.
      */
     public List<BatchResponse> listBatches() {
         return convertUtil.convertToBatchResponse((ArrayList<Batch>) batchRepository.findBy());
@@ -56,7 +56,7 @@ public class BatchService {
     /**
      * This is used to search and retrieve a single Batch on the basis of Batch ID.
      * @param batchId The Batch ID that needs to be returned
-     * @return The BatchReponse object
+     * @return The BatchResponse object
      */
     public BatchResponse getBatch(Long batchId) {
         if(!batchRepository.existsById(batchId))
@@ -97,7 +97,7 @@ public class BatchService {
      * @param noOfSamples The no of samples that are needed to be associate with the batch
      * @param newBatch The newly created batch
      * @param batchRequest The Batch Request JSON object from the Controller layer
-     * @return List of all the new samples that got added for this batch in the DB.
+     * @return List of all the new samples in SampleSummary format that got added for this batch in the DB.
      */
 
     private List<SampleSummary> createBatchSamples(int noOfSamples, Batch newBatch, BatchRequest batchRequest) {

@@ -26,7 +26,7 @@ public class BatchController {
     /**
      * This mapping is to create a Batch
      * @param batchRequest JSON object coming from the frontend as API call
-     * @return Created batch object
+     * @return Created BatchResponse object
      */
     @PostMapping("/createBatch")
     public ResponseEntity<BatchResponse> createBatch(@Valid @RequestBody BatchRequest batchRequest)
@@ -38,7 +38,7 @@ public class BatchController {
     }
 
     /**
-     * @return All the Batch records available.
+     * @return All the Batch records available in the format of BatchResponse object.
      */
     @GetMapping("/listBatches")
     public ResponseEntity<List<BatchResponse>> listBatches()
@@ -50,7 +50,7 @@ public class BatchController {
     /**
      * This mapping is to find and get back a specific batch from a batch ID.
      * @param id Batch ID of the batch that needs to be searched
-     * @return The batch
+     * @return The BatchResponse object
      */
     @GetMapping("/getBatch/{id}")
     public ResponseEntity<BatchResponse> getBatch(@PathVariable Long id)

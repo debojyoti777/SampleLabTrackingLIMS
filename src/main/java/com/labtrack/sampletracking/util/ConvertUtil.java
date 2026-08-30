@@ -8,6 +8,10 @@ import com.labtrack.sampletracking.model.Sample;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility class for converting Batch and Sample objects to a Standard API response. This is required to not expose the DB
+ * schema to the controller class.
+ */
 public class ConvertUtil {
     /**
      * Overloaded util method to change only 1 Batch Object to the API response.

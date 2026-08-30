@@ -14,8 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * This is the <b>Main Business Logic </b> layer code of the application. <br>
- * Many things go on here that is not visible to the user but does whatever the user wants it to do.
+ * Service layer for all Sample Operations
  *
  * @author Debojyoti Mallick
  */
@@ -32,7 +31,7 @@ public class SampleService {
 
     /**
      * @param request Request from controller class to create a new Sample
-     * @return Created Sample
+     * @return Created SampleSummary object
      */
     public SampleSummary createSample(SampleRequest request) {
 
@@ -42,7 +41,7 @@ public class SampleService {
 
     /**
      * @param sampleId The Sample ID that the user wants to get
-     * @return The Sample object
+     * @return The SampleSummary object
      */
     @NotNull
     public SampleSummary getSample(Long sampleId) {
@@ -56,7 +55,7 @@ public class SampleService {
      * @param columnToSearch The column that the client want to search. User has the option to search any column for the info
      *                       except ofc the value and Sample ID column.
      * @param value          The value against which the user wants to search.
-     * @return List of the Samples coming back from the search.
+     * @return List of the SamplesSummary objects coming back from the search.
      */
     @NotNull
     public List<SampleSummary> searchSamples(String columnToSearch, String value) {
@@ -74,7 +73,7 @@ public class SampleService {
     }
 
     /**
-     * @return all the samples available
+     * @return all the Samples available in the form of SampleSummary ojbect
      */
     public List<SampleSummary> listSamples(){
         return convertUtil.convertToSampleSummary(sampleRepository.findBy());
@@ -83,10 +82,12 @@ public class SampleService {
     /**
      * @param id Sample ID of the sample to be updated
      * @param newStatus The new status of the sample
-     * @return - sample with the new status
+     * @return - SampleSummary object of the Sample with the new status
      */
     public SampleSummary updateStatus(Long id, String newStatus) {
         Sample sample = sampleRepository.findBySampleId(id);
+        if(sample == null)
+            throw new SampleNotFoundException(id);
         if (newStatus.equalsIgnoreCase(SampleStatus.completed)) {
             if (sample.getValue() == 0.0)
                 throw new IllegalUpdateException();
@@ -98,10 +99,12 @@ public class SampleService {
     /**
      * @param id Sample ID of the sample whose values needs to be entered
      * @param value The value
-     * @return - sample with the saved status
+     * @return - SampleSummary object of the Sample with the saved status
      */
     public SampleSummary enterOrUpdateValue(Long id, String parameterList, double value) {
         Sample sample = sampleRepository.getSampleBySampleIdAndParameterList(id,parameterList);
+        if(sample == null)
+            throw new SampleNotFoundException(id);
         if (sample.getValue() == 0.0)
             updateStatus(sample.getSampleId(), SampleStatus.inProgress);
         sample.setValue(value);
