@@ -258,5 +258,5 @@ No manual AWS console steps are required for a deploy — pushing code is the en
 ## Author
 
 **Debojyoti Mallick**
-Associate Software Engineer @ LabVantage Solutions
+Associate Software Engineer @ LabVantage Solutions. 
 AWS Certified Solutions Architect – Associate (SAA-C03)
