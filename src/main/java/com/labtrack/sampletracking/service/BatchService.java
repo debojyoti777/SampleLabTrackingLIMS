@@ -99,7 +99,6 @@ public class BatchService {
      * @param batchRequest The Batch Request JSON object from the Controller layer
      * @return List of all the new samples in SampleSummary format that got added for this batch in the DB.
      */
-
     private List<SampleSummary> createBatchSamples(int noOfSamples, Batch newBatch, BatchRequest batchRequest) {
         ArrayList<Sample> samplesToBeAdded = new ArrayList<>();
         for (int i = 0; i < noOfSamples; i++) {
