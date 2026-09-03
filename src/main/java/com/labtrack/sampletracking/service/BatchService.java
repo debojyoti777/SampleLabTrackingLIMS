@@ -82,7 +82,7 @@ public class BatchService {
                 batchRepository.delete(batch);
             else
                 throw new IllegalUpdateException("This deletion cannot be done as Samples are associated with it.\n" +
-                        "If you want to force delete, send value -'true' from force delete to delete the Batch and the Samples.");
+                        "If you want to force delete, send value 'true' from force delete to delete the Batch and the Samples.");
         }
         else
         {
