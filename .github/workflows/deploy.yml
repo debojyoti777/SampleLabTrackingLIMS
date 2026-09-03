@@ -37,16 +37,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Terminate currently running tasks
-        run: |
-          TASK_ARNS=$(aws ecs list-tasks --cluster ${{ env.ECS_CLUSTER }} --service-name ${{ env.ECS_SERVICE }} --query 'taskArns' --output text)
-          for TASK in $TASK_ARNS; do
-            if [ -n "$TASK" ] && [ "$TASK" != "None" ]; then
-              echo "Stopping task: $TASK"
-              aws ecs stop-task --cluster ${{ env.ECS_CLUSTER }} --task "$TASK"
-            fi
-          done
-
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
