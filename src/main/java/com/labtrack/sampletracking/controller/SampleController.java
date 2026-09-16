@@ -10,6 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 /**
  * Controller class that receives the API call from the frontend and execute the logic inside.
  *
@@ -17,6 +21,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/samples")
+@Tag(name = "Samples", description = "Operations for tracking individual lab samples.")
 public class SampleController {
 
     private final SampleService sampleService;
@@ -30,8 +35,9 @@ public class SampleController {
      * @param request JSON object from the frontend with the required fields
      * @return Response is the HTTP status code from this operation with the SampleSummary body.
      */
+    @Operation(summary = "Create a new sample", description = "Creates a sample with status RECEIVED.")
     @PostMapping("/create")
-    public ResponseEntity<SampleSummary> registerSample(@Valid @RequestBody SampleRequest request) {
+    public ResponseEntity<SampleSummary> createSample(@Valid @RequestBody SampleRequest request) {
         SampleSummary created = sampleService.createSample(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -41,6 +47,11 @@ public class SampleController {
      * @param id Sample ID that needs to be returned
      * @return The SampleSummary JSON object to the frontend
      */
+    @Operation(summary = "Get a sample by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Sample found."),
+            @ApiResponse(responseCode = "404", description = "No sample exists with that ID.")
+    })
     @GetMapping("/getsample/{id}")
     public ResponseEntity<SampleSummary> getSample(@PathVariable Long id) {
         return ResponseEntity.ok(sampleService.getSample(id));
@@ -50,6 +61,7 @@ public class SampleController {
      * This mapping is to get all the samples available in the database
      * @return - The list of SampleSummary objects retrieved
      */
+    @Operation(summary = "List all the Samples")
     @GetMapping("/listsamples")
     public ResponseEntity<List<SampleSummary>> listSamples() {
         return ResponseEntity.ok(sampleService.listSamples());
@@ -61,10 +73,14 @@ public class SampleController {
      * @param searchValue Value against which the search happens
      * @return List of the SampleSummary objects that gets returned from the search
      */
+    @Operation(summary = "Search for a sample using a specific column and value")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Samples are successfully searched."),
+            @ApiResponse(responseCode = "403", description = "Wrong Column value has been entered.")
+    })
     @GetMapping("/search")
     public ResponseEntity<List<SampleSummary>> searchSamples(
             @RequestParam String columnToSearch, @RequestParam String searchValue){
-        List<SampleSummary> sample = sampleService.searchSamples(columnToSearch,searchValue);
         return ResponseEntity.ok(sampleService.searchSamples(columnToSearch,searchValue));
     }
 
@@ -74,6 +90,12 @@ public class SampleController {
      * @param updatedStatus The updated status that needs to be entered
      * @return SampleSummary JSON object with the updated status
      */
+    @Operation(summary = "Update the status of a specific sample")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Sample status successfully updated."),
+            @ApiResponse(responseCode = "403", description = "Invalid status requested."),
+            @ApiResponse(responseCode = "404", description = "No sample exists with that ID")
+    })
     @PatchMapping("/updatestatus/{id}")
     public ResponseEntity<SampleSummary> updateStatus(
             @PathVariable Long id,
@@ -88,6 +110,11 @@ public class SampleController {
      * @param parameterList Parameter List inside the sample against which the reading needs to be entered
      * @return SampleSummary JSON object with the updated value
      */
+    @Operation(summary = "Enter or Update the value of a sample")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Value has been successfully updated."),
+            @ApiResponse(responseCode = "404", description = "No sample exists with that ID.")
+    })
     @PatchMapping("/updatevalue/{id}")
     public ResponseEntity<SampleSummary> enterOrUpdateValue(
             @PathVariable Long id, @RequestParam String parameterList, @RequestParam double value){
@@ -99,7 +126,11 @@ public class SampleController {
      * @param id Sample ID of the sample that needs to be deleted
      * @return A no content body is returned signaling the success of the operation
      */
-
+    @Operation(summary = "Delete a sample by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Sample successfully deleted."),
+            @ApiResponse(responseCode = "404", description = "No sample exists with that ID")
+    })
     @DeleteMapping("/deletesample/{id}")
     public ResponseEntity<Sample> deleteSample(@PathVariable Long id) {
         sampleService.deleteSample(id);
