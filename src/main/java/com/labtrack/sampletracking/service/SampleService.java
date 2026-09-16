@@ -61,7 +61,8 @@ public class SampleService {
     public List<SampleSummary> searchSamples(String columnToSearch, String value) {
         String column = columnToSearch.toLowerCase().replace(" ", "");
         if(!isValidColumn(column))
-            throw new IllegalUpdateException();
+            throw new IllegalUpdateException("This column is not a valid searchable column. Status, Type, Created By, " +
+                    "Parameter List and Sample Desc starting with are the only searchable columns !");
         return convertUtil.convertToSampleSummary(switch (column) {
             case Columns.sampleStatus -> sampleRepository.findBySampleStatus(value.toUpperCase());
             case Columns.sampleType -> sampleRepository.findBySampleType(value);
